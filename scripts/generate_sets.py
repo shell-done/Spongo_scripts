@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from glob import glob
 import random
 
@@ -7,7 +8,7 @@ RATIO_VALIDATION = 0
 
 assert(RATIO_TRAINING + RATIO_TEST + RATIO_VALIDATION == 100)
 
-files = set(glob("data/*.jpg"))
+files = set(glob("data/data/*.jpg"))
 N = len(files)
 
 training_set = random.sample(list(files), round(RATIO_TRAINING*N/100))
@@ -24,18 +25,18 @@ else:
     validation_set = files.copy()
 
 
-with open("train.txt", "w") as o:
+with open("data/train.txt", "w") as o:
     for f in training_set:
-        o.write("data/" + f.replace("pre_data", "data") + "\n")
+        o.write("data/" + f + "\n")
 
-with open("test.txt", "w") as o:
+with open("data/test.txt", "w") as o:
     for f in test_set:
-        o.write("data/" + f.replace("pre_data", "data") + "\n")
+        o.write("data/" + f + "\n")
 
 if RATIO_VALIDATION > 0 :
-    with open("validation.txt", "w") as o:
+    with open("data/validation.txt", "w") as o:
         for f in validation_set:
-            o.write("data/" + f.replace("pre_data", "data") + "\n")
+            o.write("data/" + f + "\n")
 
 print("Results : ")
 print("Total images : %d" % N)

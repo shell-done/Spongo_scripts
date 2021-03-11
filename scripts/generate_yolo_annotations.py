@@ -1,15 +1,20 @@
+#!/usr/bin/python3
+from os import path
 from shutil import copyfile
+from progress.bar import Bar
 
-EXTRACT_IMAGES = True
+EXTRACT_IMAGES = False
 EXTRACT_DATA = True
+ANNOT_SIZE_COEFF = 1.5
 
-DIV_IMG_BY = 2
+categories = ["Ball", "Vase", "Corona", "Red", "Crown", "Grey_white"]
 
-with open("data.csv") as f:
-    categories = ["Porifera_ball", "Porifera_vase", "grey", "red", "Porifera_corona"]
+with open("annotations/Ifremer_v3.csv") as f:
     lines = [l.rstrip("\n") for l in f.readlines()]
 
+    progress = Bar('Generating Yolo\'s annotations', max=len(lines))
     for i,l in enumerate(lines):
+        progress.next()
         if i == 0:
             continue
 
@@ -17,10 +22,11 @@ with open("data.csv") as f:
 
         if params[2] in categories:
             if EXTRACT_IMAGES:
-                copyfile("PL07/" + params[8], "pre_data/" + params[8])
+                if not path.exists("data/data/" + params[8]):
+                    copyfile("/mnt/g/PL07/" + params[8], "data/data/" + params[8])
 
             if EXTRACT_DATA:
-                o = open("pre_data/" + params[8].rstrip(".jpg") + ".txt", "a")
+                o = open("data/data/" + params[8].rstrip(".jpg") + ".txt", "a")
                 points = params[13][1:-1].split(",")
                 points = [float(p) for p in points]
 
@@ -30,8 +36,11 @@ with open("data.csv") as f:
 
                 class_id = categories.index(params[2])
                 x_center, y_center = points[0], points[1]
-                width = height = points[2]
+                width = height = points[2]*ANNOT_SIZE_COEFF
 
                 o.write("%d %.6f %.6f %.6f %.6f\n" % (class_id, x_center/img_width, y_center/img_height, width/img_width, height/img_height))
                 
                 o.close()
+
+    progress.finish()
+    print()

@@ -1,12 +1,21 @@
+#!/usr/bin/python3
 from PIL import Image, ImageDraw
 from glob import glob
+from progress.bar import Bar
 
-categories = ["Porifera_ball", "Porifera_vase", "grey", "red", "Porifera_corona"]
-colors = ["lime", "orange", "green", "red", "yellow"]
+categories = ["Ball", "Vase", "Corona", "Red", "Crown", "Grey_white"]
+colors = ["lime", "white", "orange", "red", "cyan", "pink"]
 
-files = set(glob("data/*.jpg"))
+files = set(glob("data/data/*.jpg"))
 
+with open("data/test.txt") as f:
+    files = [l.rstrip("\n") for l in f]
+
+#files = [l.replace("data/data", "pre_data") for l in files]
+
+progress = Bar('Processing', max=len(files))
 for f in files:
+    progress.next()
     source = Image.open(f)
     draw = ImageDraw.Draw(source)
 
@@ -25,11 +34,11 @@ for f in files:
         width = int(params[3]*img_width)
         height = int(params[4]*img_height)
 
-        tl = (x_center - width, y_center - height)
-        br = (x_center + width, y_center + height)
+        tl = (x_center - width//2, y_center - height//2)
+        br = (x_center + width//2, y_center + height//2)
 
         draw.rectangle((tl, br), fill=None, outline=color, width=10)
 
-    source.save(f.replace("data", "outlined"), "JPEG")
+    source.save(f.replace("data/data", "data/highlighted"), "JPEG")
 
-    break
+progress.finish()

@@ -27,16 +27,16 @@ else:
 
 with open("data/train.txt", "w") as o:
     for f in training_set:
-        o.write("data/" + f + "\n")
+        o.write(f + "\n")
 
 with open("data/test.txt", "w") as o:
     for f in test_set:
-        o.write("data/" + f + "\n")
+        o.write(f + "\n")
 
 if RATIO_VALIDATION > 0 :
     with open("data/validation.txt", "w") as o:
         for f in validation_set:
-            o.write("data/" + f + "\n")
+            o.write(f + "\n")
 
 print("Results : ")
 print("Total images : %d" % N)

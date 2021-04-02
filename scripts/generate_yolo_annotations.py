@@ -3,13 +3,13 @@ from os import path
 from shutil import copyfile
 from progress.bar import Bar
 
-EXTRACT_IMAGES = False
+EXTRACT_IMAGES = True
 EXTRACT_DATA = True
-ANNOT_SIZE_COEFF = 1.5
+ANNOT_SIZE_COEFF = 2
 
 categories = ["Ball", "Vase", "Corona", "Red", "Crown", "Grey_white"]
 
-with open("annotations/Ifremer_v3.csv") as f:
+with open("annotations/Ifremer_v4.csv") as f:
     lines = [l.rstrip("\n") for l in f.readlines()]
 
     progress = Bar('Generating Yolo\'s annotations', max=len(lines))
@@ -38,9 +38,17 @@ with open("annotations/Ifremer_v3.csv") as f:
                 x_center, y_center = points[0], points[1]
                 width = height = points[2]*ANNOT_SIZE_COEFF
 
+                if x_center/img_width >= 1 or y_center/img_height >= 1:
+                    print("Anormal annotation in %s" % params[8].rstrip(".jpg") + ".txt")
+
                 o.write("%d %.6f %.6f %.6f %.6f\n" % (class_id, x_center/img_width, y_center/img_height, width/img_width, height/img_height))
                 
                 o.close()
 
+    if EXTRACT_DATA:
+        o = open("data/classes.names", "w")
+        for c in categories:
+            o.write(c + "\n")
+        o.close()
+
     progress.finish()
-    print()

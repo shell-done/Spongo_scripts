@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from PIL import Image
 
 def percentageOfOverlapping(area, el_tl, el_br):
@@ -20,11 +21,11 @@ def contains(area, point):
     return False
 
 DIV_IMG_BY = 2
-MINIMUM_OVERLAPPING_AREA = 0.6
+MINIMUM_OVERLAPPING_AREA = 0.51
+ANNOTATION_SIZE_MULTIPLIER = 1.5
 
-#!/usr/bin/python3
-with open("data.csv") as f:
-    categories = ["Porifera_ball", "Porifera_vase", "grey", "red", "Porifera_corona"]
+with open("annotations/Ifremer_v3.csv") as f:
+    categories = ["Ball", "Vase", "Corona", "Red", "Crown", "Grey_white"]
 
     lines = [l.rstrip("\n") for l in f.readlines()]
     images = {}
@@ -110,18 +111,18 @@ with open("data.csv") as f:
             if len(elements_in_area) == 0:
                 continue
 
-            orig = Image.open("data/preprocessed/" + elements_in_area[0]["orig_filename"])
+            orig = Image.open("data/data/" + elements_in_area[0]["orig_filename"])
             new_img = orig.crop(area)
-            new_img.save("data/data/" + k.rstrip(".jpg") + "-d" + str(DIV_IMG_BY) + "-a" + str(pos) + ".jpg")
+            new_img.save("data/postprocessed/" + k.rstrip(".jpg") + "-d" + str(DIV_IMG_BY) + "-a" + str(pos) + ".jpg")
             print("New img : %s (old name : %s)" % (k.rstrip(".jpg") + "-d" + str(DIV_IMG_BY) + "-a" + str(pos) + ".jpg", elements_in_area[0]["orig_filename"]))
 
-            with open("data/data/" + k.rstrip(".jpg") + "-d" + str(DIV_IMG_BY) + "-a" + str(pos) + ".txt", "w") as o:
+            with open("data/postprocessed/" + k.rstrip(".jpg") + "-d" + str(DIV_IMG_BY) + "-a" + str(pos) + ".txt", "w") as o:
                 for e in elements_in_area:
                     class_id = categories.index(e["label_name"])
                     x_center, y_center = (e["center"][0] - area[0])/area_w, (e["center"][1] - area[1])/area_h
                     radius = e["radius"]
-                    width = min(radius, abs(e["center"][0] - area[0]), abs(area_w - e["center"][0] + area[0]))*2/area_w
-                    height = min(radius, abs(e["center"][1] - area[1]), abs(area_h - e["center"][1] + area[1]))*2/area_h
+                    width = min(radius, abs(e["center"][0] - area[0]), abs(area_w - e["center"][0] + area[0]))*ANNOTATION_SIZE_MULTIPLIER/area_w
+                    height = min(radius, abs(e["center"][1] - area[1]), abs(area_h - e["center"][1] + area[1]))*ANNOTATION_SIZE_MULTIPLIER/area_h
                     o.write("%d %.6f %.6f %.6f %.6f\n" % (class_id, x_center, y_center, width, height))
 
     print("Data keeped : %d" % data_keeped)
